@@ -1,0 +1,63 @@
+# Environments
+.env
+.env.local
+.env.*.local
+venv/
+env/
+ENV/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Node / React
+node_modules/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Project specific
+chromadb_store/
+media/
+staticfiles/
+frontend_static/
+buffalo_l/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.claude
+CLAUDE.md

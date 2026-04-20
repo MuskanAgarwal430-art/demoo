@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - frontend_static:/app/build
+    command: sh -c "cp -r /app/build/. /frontend_static/"
+
+  api:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    command: gunicorn attendance_system.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./chromadb_store:/app/chromadb_store
+
+  worker:
+    build: ./backend
+    command: celery -A attendance_system worker --loglevel=info -Q default,image_queue
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./media:/app/media
+      - ./chromadb_store:/app/chromadb_store
+
+  beat:
+    build: ./backend
+    command: celery -A attendance_system beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root12345
+      MYSQL_DATABASE: attendance_dbs
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+
+  nginx:
+    image: nginx:alpine        
+    ports:    
+      - "8080:80"    
+    depends_on:    
+      - api
+    volumes:    
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - frontend_static:/usr/share/nginx/html
+      - ./staticfiles:/staticfiles
+      - ./media:/media
+
+volumes:
+  mysql_data:
+  redis_data:
+  frontend_static:
